@@ -37,23 +37,31 @@ scale_fill_discrete = scale_fill_viridis_d
 ```{r}
 raw_data_weight <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363") 
 
-data_1 = raw_data_weight      # preserve the raw data for later comparison
+weight = raw_data_weight      # preserve the raw data for later comparison
 
-colnames(data_1) = data_1[1,] # change column names
+colnames(weight) = weight[1,] # change column names
 
-data_1 <- data_1[-1,]         # omit the first row which is the column name
+weight <- weight[-1,]         # omit the first row which is the column name
 
-head(raw_data_weight)
 
-head(data_1)
+weight
 
 ```
 
-#### Issue 2: messy date format shown in R 
+#### Issue 2: separate weight observations in 2 units for the 3 dogs 
 
+```{r}
+weight <- weight %>% 
+  separate(Raisin, c("Raisin (Lbs)","Raisin (Oz)"), sep = " ", convert = TRUE) %>% 
+  separate(Simone, c("Simone (Lbs)","Simone (Oz)"), sep = " ", convert = TRUE) %>% 
+  separate(Gagne, c("Gagne (Lbs)","Gagne (Oz)"), sep = " ", convert = TRUE) %>% 
+  separate(std, c("std (Lbs)","std (Oz)"), sep = " ", convert = TRUE)
 
+weight
+  
+```
 
-
+#### Issue 3: messy data format shown in R
 
 
 
