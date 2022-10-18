@@ -63,6 +63,14 @@ weight
 
 #### Issue 3: messy data format shown in R
 
+```{r}
+
+as.Date(as.numeric(weight$DATE), origin = "1899-12-30")
+
+
+
+
+```
 
 
 
