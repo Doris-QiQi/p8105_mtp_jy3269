@@ -31,17 +31,32 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ```
 
+## Problem 1 -- data
+
+#### Issue 1: incorrect column names  
 ```{r}
-data_1 <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363")
+raw_data_weight <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363") 
 
-colnames(data_1) = data_1[1,]
-data_1 <- data_1[-1,]
+data_1 = raw_data_weight      # preserve the raw data for later comparison
 
+colnames(data_1) = data_1[1,] # change column names
 
+data_1 <- data_1[-1,]         # omit the first row which is the column name
 
+head(raw_data_weight)
 
+head(data_1)
 
 ```
+
+#### Issue 2: messy date format shown in R 
+
+
+
+
+
+
+
 
 
 
