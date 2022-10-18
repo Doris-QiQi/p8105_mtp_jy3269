@@ -9,6 +9,7 @@ output: github_document
 library(tidyverse)
 library(ggridges)
 library(patchwork)
+library(readxl)
 
 knitr::opts_chunk$set(
 	echo = TRUE,
@@ -29,3 +30,19 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 
 ```
+
+```{r}
+data_1 <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363")
+
+colnames(data_1) = data_1[1,]
+data_1 <- data_1[-1,]
+
+
+
+
+
+```
+
+
+
+
