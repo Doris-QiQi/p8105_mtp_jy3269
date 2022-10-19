@@ -74,10 +74,16 @@ weight <- weight %>%
 # use the middle day between the 76th and 78th day.
 weight[is.na(weight)] <- round(((weight$Date)[78] + (weight$Date)[76])/2)
 
-# turn the number into Date format
-as.Date(weight$Date, origin = "1899-12-30")
+
+
+weight <- weight %>% 
+  mutate(Date = as.Date(weight$Date, origin = "1899-12-30")) %>% 
+  separate(Date, into = c("Year","Month","Day"),sep = "-") %>% 
+  mutate(Month = month.abb[as.numeric(Month)])
 
 weight
+
+
 
 
 ```
