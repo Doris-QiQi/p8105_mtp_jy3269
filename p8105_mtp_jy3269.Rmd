@@ -31,7 +31,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ```
 
-## Problem 1 -- data
+## Problem 1 -- Data
 
 ### I. Weight data
 
@@ -49,6 +49,7 @@ weight
 
 ```
 
+
 #### Issue 2: separate weight observations in 2 units for the 3 dogs 
 
 ```{r}
@@ -57,36 +58,58 @@ weight <- weight %>%
   separate(Simone, c("Simone (Lbs)","Simone (Oz)"), sep = " ", convert = TRUE) %>% 
   separate(Gagne, c("Gagne (Lbs)","Gagne (Oz)"), sep = " ", convert = TRUE) %>% 
   separate(std, c("std (Lbs)","std (Oz)"), sep = " ", convert = TRUE) %>% 
-  rename(Date = DATE)
+  rename(Date = DATE) %>% 
+  janitor::clean_names()
 
 weight
   
 ```
 
+
 #### Issue 3: messy data format shown in R
 
 ```{r}
-unique(weight$Date)                # find outliers in date
+unique(weight$date)                # find outliers in date
 
-which(weight$Date == "s")          # locate the outlier
+which(weight$date == "s")          # locate the outlier
 
 weight <- weight %>% 
-  mutate(Date = as.numeric(Date))  # transform data type and the “s” will be NA
+  mutate(date = as.numeric(date))  # transform data type and the “s” will be NA
 
 # use the middle day between the 76th and 78th day.
-weight$Date[is.na(weight$Date)] <- round(((weight$Date)[78] + (weight$Date)[76])/2)
+weight$date[is.na(weight$date)] <- round(((weight$date)[78] + (weight$date)[76])/2)
 
 
-
+# change the numbers into date format
 weight <- weight %>% 
-  mutate(Date = as.Date(weight$Date, origin = "1899-12-30")) %>% 
-  separate(Date, into = c("Year","Month","Day"),sep = "-") %>% 
-  mutate(Month = month.abb[as.numeric(Month)])
+  mutate(date = as.Date(weight$date, origin = "1899-12-30"))
 
-weight
+# another data set to store the date in a separated way
+weight_1 <- weight %>%  
+  separate(date, into = c("Year","Month","Day"),sep = "-") %>% 
+  mutate(Month = month.abb[as.numeric(Month)])
 
 write_csv(weight,file = "data/weight.csv")
 ```
+
+
+#### 4. tidy the data
+
+```{r}
+weight_2 <- weight %>% 
+  pivot_longer(                          
+    raisin_lbs:std_oz,
+    names_to = "dog", 
+    values_to = "weight") %>% 
+  separate(
+    dog, into = c("dog","unit"),sep ="_"
+  )
+
+weight_2
+
+
+```
+
 
 
 ### II. Notes
@@ -100,16 +123,33 @@ note <- cbind(date,raw_data_note)
 
 colnames(note)[4] <- "Notes"
 
-note
-
 write_csv(note,file = "data/note.csv")
 ```
 
 
 
+## Problem 2 : EDA
+
+#### 1. number of unique date
+```{r}
+num_unique_date <- length(unique(weight$Date))
+
+```
 
 
+#### 2. number of observations for each dog
+```{r}
+weight_2 %>% 
+  group_by(dog,unit) %>% 
+  summarize(
+    avg_weight = mean(weight,na.rm = T),
+    sd_weight = sd(weight,na.rm = T),
+    num_obs = n()
+  ) %>% 
+  knitr :: kable()
 
+
+```
 
 
 
