@@ -43,7 +43,6 @@ colnames(weight) = weight[1,] # change column names
 
 weight <- weight[-1,]         # omit the first row which is the column name
 
-
 weight
 
 ```
@@ -55,7 +54,8 @@ weight <- weight %>%
   separate(Raisin, c("Raisin (Lbs)","Raisin (Oz)"), sep = " ", convert = TRUE) %>% 
   separate(Simone, c("Simone (Lbs)","Simone (Oz)"), sep = " ", convert = TRUE) %>% 
   separate(Gagne, c("Gagne (Lbs)","Gagne (Oz)"), sep = " ", convert = TRUE) %>% 
-  separate(std, c("std (Lbs)","std (Oz)"), sep = " ", convert = TRUE)
+  separate(std, c("std (Lbs)","std (Oz)"), sep = " ", convert = TRUE) %>% 
+  rename(Date = DATE)
 
 weight
   
@@ -64,10 +64,20 @@ weight
 #### Issue 3: messy data format shown in R
 
 ```{r}
+unique(weight$Date)                # find outliers in date
 
-as.Date(as.numeric(weight$DATE), origin = "1899-12-30")
+which(weight$Date == "s")          # locate the outlier
 
+weight <- weight %>% 
+  mutate(Date = as.numeric(Date))  # transform data type and the “s” will be NA
 
+# use the middle day between the 76th and 78th day.
+weight[is.na(weight)] <- round(((weight$Date)[78] + (weight$Date)[76])/2)
+
+# turn the number into Date format
+as.Date(weight$Date, origin = "1899-12-30")
+
+weight
 
 
 ```
