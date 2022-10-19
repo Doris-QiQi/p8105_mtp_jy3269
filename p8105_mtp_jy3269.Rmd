@@ -74,7 +74,7 @@ weight <- weight %>%
   mutate(Date = as.numeric(Date))  # transform data type and the “s” will be NA
 
 # use the middle day between the 76th and 78th day.
-weight[is.na(weight)] <- round(((weight$Date)[78] + (weight$Date)[76])/2)
+weight$Date[is.na(weight$Date)] <- round(((weight$Date)[78] + (weight$Date)[76])/2)
 
 
 
