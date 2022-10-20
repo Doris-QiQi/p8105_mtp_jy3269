@@ -158,31 +158,54 @@ weight_2 %>%
 
 ## Problem 3
 
-### left plot -- distribution of weights for each dog
+### right plot -- Each Dog’s Weight Over Time
 ```{r}
-weight_2 %>% 
+weight_over_time <- weight_2 %>% 
   filter(unit == "lbs",
          dog != "std") %>% 
   ggplot(aes(x = date, y = weight,color = dog), group = dog) +
   geom_line() +
   scale_y_continuous(
-    limits = c(5,20)) +
+    limits = c(6,20)) +
   facet_grid(dog~.) +
-  labs(x = "Date",
+  labs(x = "Time",
        y = "Weight  (lbs)",
-       title = "Distribution of Weight for Each Dog") +
+       title = "Each Dog’s Weight Over Time") +
   theme_bw() +
   theme(legend.position = "bottom")
+
+weight_over_time
   
 ```
 
 
+### right plot -- distribution of weights for each dog
 
+```{r}
+weight_distribution <- weight_2 %>% 
+  filter(unit == "lbs",
+         dog != "std") %>%
+  ggplot(aes(x = dog, y = weight,fill = dog)) +
+  geom_violin() +
+  scale_y_continuous(
+    limits = c(6,20)) +
+  labs(x = "Dog",
+       y = "Weight  (lbs)",
+       title = "Weight Distribution of Each Dog") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+  
 
+weight_distribution
+```
 
+### combine the 2 plots
 
+```{r}
 
+weight_distribution + weight_over_time
 
+```
 
 
 
