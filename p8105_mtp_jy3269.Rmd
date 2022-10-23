@@ -158,9 +158,9 @@ weight_2 %>%
 
 ## Problem 3
 
-### right plot -- Each Dog’s Weight Over Time
+### right plot -- Each Dog’s Weight (lbs) Over Time
 ```{r}
-weight_over_time <- weight_2 %>% 
+weight_lbs_over_time <- weight_2 %>% 
   filter(unit == "lbs",
          dog != "std") %>% 
   ggplot(aes(x = date, y = weight,color = dog), group = dog) +
@@ -170,19 +170,45 @@ weight_over_time <- weight_2 %>%
   facet_grid(dog~.) +
   labs(x = "Time",
        y = "Weight  (lbs)",
-       title = "Each Dog’s Weight Over Time") +
+       title = "Each Dog’s Weight (lbs) Over Time") +
   theme_bw() +
   theme(legend.position = "bottom")
 
-weight_over_time
+weight_lbs_over_time
+  
+```
+
+### right plot -- Each Dog’s Weight (oz) Over Time
+```{r}
+weight_oz_over_time <- weight_2 %>% 
+  filter(unit == "oz",
+         dog != "std") %>% 
+  ggplot(aes(x = date, y = weight,color = dog), group = dog) +
+  geom_line() +
+  scale_y_continuous(
+    limits = c(0,17)) +
+  facet_grid(dog~.) +
+  labs(x = "Time",
+       y = "Weight  (lbs)",
+       title = "Each Dog’s Weight (lbs) Over Time") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+weight_oz_over_time
   
 ```
 
 
-### right plot -- distribution of weights for each dog
+
+
+
+
+
+
+### left plot -- distribution of weights (lbs) for each dog
 
 ```{r}
-weight_distribution <- weight_2 %>% 
+weight_distribution_lbs<- weight_2 %>% 
   filter(unit == "lbs",
          dog != "std") %>%
   ggplot(aes(x = dog, y = weight,fill = dog)) +
@@ -191,19 +217,44 @@ weight_distribution <- weight_2 %>%
     limits = c(6,20)) +
   labs(x = "Dog",
        y = "Weight  (lbs)",
-       title = "Weight Distribution of Each Dog") +
+       title = "Weight Distribution (lbs) of Each Dog") +
   theme_bw() +
   theme(legend.position = "bottom")
   
 
-weight_distribution
+weight_distribution_lbs
 ```
+
+
+
+### left plot -- distribution of weights (oz )for each dog
+```{r}
+weight_distribution_oz<- weight_2 %>% 
+  filter(unit == "oz",
+         dog != "std") %>%
+  ggplot(aes(x = dog, y = weight,fill = dog)) +
+  geom_violin() +
+  scale_y_continuous(
+    limits = c(0,16)) +
+  labs(x = "Dog",
+       y = "Weight  (lbs)",
+       title = "Weight Distribution (lbs) of Each Dog") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+  
+
+weight_distribution_oz
+```
+
+
+
+
 
 ### combine the 2 plots
 
 ```{r}
 
-weight_distribution + weight_over_time
+weight_distribution_lbs + weight_lbs_over_time
 
 ```
 
