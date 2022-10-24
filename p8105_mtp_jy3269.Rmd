@@ -35,7 +35,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ### I. Weight data
 
-#### Issue 1: incorrect column names  
+#### Issue 1: Incorrect column names  
 ```{r}
 weight <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363") 
 
@@ -48,7 +48,7 @@ weight
 ```
 
 
-#### Issue 2: separate weight observations in 2 units for the 3 dogs 
+#### Issue 2: Unify the unit for weight measurement
 
 ```{r}
 weight <- weight %>% 
@@ -68,7 +68,7 @@ weight
 ```
 
 
-#### Issue 3: messy data format shown in R
+#### Issue 3: Messy date format shown in R
 
 ```{r}
 unique(weight$date)                # find outliers in date
@@ -95,7 +95,7 @@ write_csv(weight,file = "data/weight.csv")
 ```
 
 
-#### 4. tidy the data
+#### 4. Tidy data into longer form
 
 ```{r}
 weight_2 <- weight %>% 
@@ -106,7 +106,6 @@ weight_2 <- weight %>%
   mutate(
     Dog = factor(Dog),
   )
-
 
 weight_2
 ```
@@ -131,14 +130,14 @@ write_csv(note,file = "data/note.csv")
 
 ## Problem 2 : EDA
 
-#### 1. number of unique date
+#### 1. Number of unique date
 ```{r}
 num_unique_date <- length(unique(weight$date))
 
 ```
 
 
-#### 2. number of observations for each dog
+#### 2. Make a table showing number of observations, mean and standard deviation of weight
 ```{r}
 weight_2 %>% 
   group_by(Dog) %>% 
@@ -161,7 +160,7 @@ weight_2 %>%
 weight_lbs_over_time <- weight_2 %>% 
   filter(Dog != "Standard") %>% 
   ggplot(aes(x = date, y = Weight,color = Dog), group = Dog) +
-  geom_line() + facet_wrap(.~Dog, scales = "free_y")+
+  geom_line() + facet_wrap(.~Dog, nrow=3,scales = "free_y")+
   labs(x = "Time",
        y = "Weight  (lbs)",
        title = "Each Dog’s Weight (lbs) Over Time") +
@@ -193,10 +192,6 @@ weight_distribution_lbs<- weight_2 %>%
 
 weight_distribution_lbs
 ```
-
-
-
-
 
 
 ### combine the 2 plots
