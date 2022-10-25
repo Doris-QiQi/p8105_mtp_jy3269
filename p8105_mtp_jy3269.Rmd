@@ -10,6 +10,7 @@ library(tidyverse)
 library(ggridges)
 library(patchwork)
 library(readxl)
+wordcountaddin::text_stats("p8105_mtp_jy3269.Rmd")
 
 knitr::opts_chunk$set(
 	echo = TRUE,
@@ -33,11 +34,28 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ## Problem 1 -- Data
 
+**Brief Introduction to the Raw Data:**
+
+The data set is a record of 3 pet dogs' weight from `r weight$date[1]` to `r weight$date[-1]`. The raw data set has `r nrows(raw_data)` rows and 6 columns. The first column is the date when the dogs are weighed. The next 3 columns show the weight of each dog, named Raisin, Simone and Gagne respectively.To ensure the measurement accuracy, a standard object is also weighed and recorded occasionally as a reference. The units used to measure in the raw data set is a combination of lbs and oz. The last column contains occasional notes for the dogs' status.
+
+
+**Goals:**
+
+
+
+
+
 ### I. Weight data
 
 #### Issue 1: Incorrect column names  
 ```{r}
-weight <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363") 
+raw_data <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363") 
+head(raw_data)
+
+nrow(raw_data)
+ncol(raw_data)
+
+weight = raw_data
 
 colnames(weight) = weight[1,] # change column names
 
@@ -160,7 +178,7 @@ weight_2 %>%
 weight_lbs_over_time <- weight_2 %>% 
   filter(Dog != "Standard") %>% 
   ggplot(aes(x = date, y = Weight,color = Dog), group = Dog) +
-  geom_line() + facet_wrap(.~Dog, nrow=3,scales = "free_y")+
+  geom_line(size = 0.8) + facet_wrap(.~Dog, nrow=3,scales = "free_y")+
   labs(x = "Time",
        y = "Weight  (lbs)",
        title = "Each Dog’s Weight (lbs) Over Time") +
