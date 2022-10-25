@@ -189,7 +189,7 @@ write_csv(note,file = "data/note.csv")
 
 ##  EDA
 
-#### 1.unique date
+#### 1.unique dates
 
 there are `r length(unique(weight$date))` unique dates.
 ```{r echo=FALSE}
@@ -198,16 +198,20 @@ num_unique_date <- length(unique(weight$date))
 ```
 
 
-#### 2. Make a table showing number of observations, mean and standard deviation of weight
+#### 2. Table
+
+  * `avg_weight` measures the average weight in the observation duration. Simone is the lightest and Raisin is the heaviest.
+  * `sd_weight` measures the deviation from the average weight. The deviations are all small ,showing low variability in weight. Variability of Raisin and Simone are slightly higher.
+  * all
 ```{r}
 weight_2 %>% 
   group_by(Dog) %>% 
   summarize(
-    avg_weight = round(mean(Weight,na.rm = T),digits = 3),
+    avg_weight = round(mean(Weight,na.rm = T),digits = 3),   # NA is removed
     sd_weight = round(sd(Weight,na.rm = T),digits = 3),
-    num_obs = n()
+    num_obs = sum(!is.na(Weight))                            # count non-NA obs
   ) %>% 
-  knitr::kable(caption = "Weight measured in lbs")
+  knitr::kable(caption = "Number of Observations and Weight Features")
 
 
 ```
