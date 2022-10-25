@@ -32,21 +32,19 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ```
 
-## Problem 1 -- Data
+##  Data
 
-**Brief Introduction to the Raw Data:**
+**Introduction to the Raw Data:**
 
-  * The data set records 3 pet dogs' weight from `r weight$date[1]` to `r weight$date[-1]`. 
+  * The data records 3 pet dogs' weight from `r weight$date[1]` to `r weight$date[-1]`. 
 
-  * The raw data set has `r nrows(raw_data)` rows and 6 columns.
+  * Raw dataset has `r nrows(raw_data)` rows and 6 columns.
 
   * The first column is the date when the dogs are weighed. 
 
   * The next 3 columns show the weight of each dog, named Raisin, Simone and Gagne respectively.
 
   * A standard object is also weighed and recorded occasionally as a reference. 
-
-  * The units used to measure in the raw data set is a combination of lbs and oz. 
 
   * The last column contains occasional notes for the dogs' status.
 
@@ -58,7 +56,7 @@ scale_fill_discrete = scale_fill_viridis_d
   * Visualize the distribution of dogs' weights and identify their variation over time.
 
 
-### I. Weight Data
+### I. Weight 
 
 #### Issue 1: Incorrect column names  
 
@@ -69,7 +67,7 @@ raw_data <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363")
 head(raw_data)    # show part of the raw data
 ```
 
-This problem is solved by extracting the first row as column names to rename the columns. Then, remove the previous first row to avoid duplication.
+Extract the first row as column names to rename it. Then, remove the first row to avoid duplication.
 ```{r}
 weight = raw_data             # save the raw data and work on the new data set named weight 
 
@@ -83,7 +81,7 @@ head(weight)                  # data after column name correction
 
 #### Issue 2: Unify Units
 
-The original units for weight data contain both lbs and oz. First, the two units of data are separated. Then, according to the rule that 1 lb = 16 oz, oz is transformed into lb and added to the lbs column. Now we have the weight data measure in lbs for dogs and the reference.
+The original units for weight contain both lbs and oz. First, the two units are separated. According to 1 lb = 16 oz, oz is transformed into lb and then added to the lbs column. Now we have the weight measured in lbs.
 ```{r}
 weight <- weight %>% 
   separate(Raisin, c("Raisin (Lbs)","Raisin (Oz)"), sep = " ", convert = TRUE) %>% 
@@ -106,24 +104,28 @@ head(weight)     # data after units transformation
 
 #### Issue 3: Messy date shown in R
 
-1. The dates imported from excel are shown as integers but in character format in R. 
-   First we transform it into numeric type. Then, add the number to the original date of `1899-12-30` to get the actual date.
+1. The dates imported from excel are shown as integers but in character type in R. 
+   First, transform it into numeric type. Then, add the number to the original date of `1899-12-30` to get the actual date.
    
 2. A fault in date.
    The fault is detected when examining the unique values of dates. There is an `s` in the date column. We suppose that this is a wrong entry due to mistyping. We locate it and use the middle day of the 2 dates next to it to correct it.
 
-```{r,echo=FALSE}
+```{r}
 unique(weight$date)                # find outliers in date
 
 which(weight$date == "s")          # locate the outlier
+```
 
+```{r}
 weight <- weight %>% 
   mutate(date = as.numeric(date))  # transform data type and the “s” will be NA
 
 # use the middle day between the 76th and 78th day.
 weight$date[is.na(weight$date)] <- round(((weight$date)[78] + (weight$date)[76])/2)
+```
 
 
+```{r}
 # change the numbers into date format
 weight <- weight %>% 
   mutate(date = as.Date(weight$date, origin = "1899-12-30"))
@@ -134,8 +136,8 @@ write_csv(weight,file = "data/weight.csv")
 weight_1 <- weight %>%  
   separate(date, into = c("Year","Month","Day"),sep = "-") %>% 
   mutate(Month = month.abb[as.numeric(Month)])
-
 ```
+
 
 ```{r}
 head(weight)    # data after date correction
@@ -145,6 +147,10 @@ head(weight)    # data after date correction
 
 #### 4. Tidy data 
 
+Transform the 4 columns of weight into 2 new columns named `Dog` and `Weight`. 
+
+  * `Dog` contains dogs' and object's names.
+  * `Weight` stores the weight with respect to the name.
 ```{r}
 weight_2 <- weight %>% 
   pivot_longer(                          
@@ -162,24 +168,31 @@ weight_2
 
 ### II. Notes
 
+Extract the last column from raw data and bind with the tidied date column to form the `note` dataset
 ```{r}
 raw_data_note <- read_excel("./data/dogweights_07may2022.xlsx",range = "G2:G363") 
+raw_data_note
 
-date <- weight[,1:3] # use the date in the weight dataframe
+date <- weight[,1] # use the date in the weight dataframe
+date
 
-note <- cbind(date,raw_data_note)
+note <- bind_cols(date,raw_data_note)
 
-colnames(note)[4] <- "Notes"
+colnames(note)[2] <- "Notes"
+
+note
 
 write_csv(note,file = "data/note.csv")
 ```
 
 
 
-## Problem 2 : EDA
+##  EDA
 
-#### 1. Number of unique date
-```{r}
+#### 1.unique date
+
+there are `r length(unique(weight$date))` unique dates.
+```{r echo=FALSE}
 num_unique_date <- length(unique(weight$date))
 
 ```
@@ -201,7 +214,7 @@ weight_2 %>%
 
 
 
-## Problem 3
+## Visualization
 
 ### right plot -- Each Dog’s Weight (lbs) Over Time
 ```{r}
