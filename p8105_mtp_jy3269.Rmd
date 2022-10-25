@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: github_document
 ---
 
-```{r,warning=FALSE, message=FALSE}
+```{r,warning=FALSE, message=FALSE,echo=FALSE}
 library(tidyverse)
 library(ggridges)
 library(patchwork)
@@ -34,35 +34,35 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ##  Data
 
-**Introduction to the Raw Data:**
+**Introduction:**
 
-  * The data records 3 pet dogs' weight from `r weight$date[1]` to `r weight$date[-1]`. 
+  * The data records 3 pet dogs' weight from 12-Aug-18 to 6-May-22. 
 
-  * Raw dataset has `r nrows(raw_data)` rows and 6 columns.
+  * It has 362 rows and 6 columns.
 
-  * The first column is the date when the dogs are weighed. 
+  * The first column is the date. 
 
   * The next 3 columns show the weight of each dog, named Raisin, Simone and Gagne respectively.
 
-  * A standard object is also weighed and recorded occasionally as a reference. 
+  * A standard object is also weighed occasionally as a reference. 
 
   * The last column contains occasional notes for the dogs' status.
 
 
 **Goals of the Report:**
 
-  * Show the major steps in turning the raw data set into a tidy one available for analysis.
-  * Explore the features in the 3 dogs' weight and try to interpret them.
-  * Visualize the distribution of dogs' weights and identify their variation over time.
+  * Show the major steps in turning the raw data set into a tidy one
+  * Explore the features in the 3 dogs' weight and try to interpret them
+  * Visualize the distribution of dogs' weights and identify their variation over time
 
 
 ### I. Weight 
 
-#### Issue 1: Incorrect column names  
+#### 1: Incorrect column names  
 
-The raw data is imported from excel. Because of the merged cells, the column names are not correct in `raw_data`.
+The column names are not correct in `raw_data`.
 
-```{r}
+```{r,echo=FALSE}
 raw_data <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363") 
 head(raw_data)    # show part of the raw data
 ```
@@ -79,9 +79,9 @@ head(weight)                  # data after column name correction
 ```
 
 
-#### Issue 2: Unify Units
+#### 2: Unify Units
 
-The original units for weight contain both lbs and oz. First, the two units are separated. According to 1 lb = 16 oz, oz is transformed into lb and then added to the lbs column. Now we have the weight measured in lbs.
+The original units contain both lbs and oz. First, the two units are separated. According to 1 lb = 16 oz, oz is transformed into lb and then added to the lbs column. Now we have the weight measured in lbs.
 ```{r}
 weight <- weight %>% 
   separate(Raisin, c("Raisin (Lbs)","Raisin (Oz)"), sep = " ", convert = TRUE) %>% 
@@ -99,24 +99,25 @@ weight <- weight %>%
 
 ```{r}
 head(weight)     # data after units transformation
+
 ```
 
 
-#### Issue 3: Messy date shown in R
+#### 3: Messy date 
 
-1. The dates imported from excel are shown as integers but in character type in R. 
-   First, transform it into numeric type. Then, add the number to the original date of `1899-12-30` to get the actual date.
+1. The dates from excel are shown as integers but in character type in R. 
+   First, transform it into numeric type. Then add the number to the original date of `1899-12-30` to get the actual date
    
-2. A fault in date.
-   The fault is detected when examining the unique values of dates. There is an `s` in the date column. We suppose that this is a wrong entry due to mistyping. We locate it and use the middle day of the 2 dates next to it to correct it.
+2. Wrong date 
+   When examining the unique values of dates,there is an `s` in the date column. We suppose that this is a wrong entry due to mistyping. We locate it and use the middle day of the 2 dates next to it to correct it
 
-```{r}
+```{r,eval = FALSE}
 unique(weight$date)                # find outliers in date
 
 which(weight$date == "s")          # locate the outlier
 ```
 
-```{r}
+```{r,warning=FALSE}
 weight <- weight %>% 
   mutate(date = as.numeric(date))  # transform data type and the “s” will be NA
 
@@ -144,13 +145,22 @@ head(weight)    # data after date correction
 ```
 
 
+#### 4. Wrong Weight
 
-#### 4. Tidy data 
+When examine the unique values of weights, we find wrong entry like `1810` instead of `18 10`.
 
-Transform the 4 columns of weight into 2 new columns named `Dog` and `Weight`. 
+```{r}
+weight$Raisin[40] <- 18 + 10/16
+weight$Raisin[117] <- 18 + 3/16
+weight$Raisin[210] <- 17 + 15/16
+weight$Standard[358] <- 20 + 15.4/16
+```
 
-  * `Dog` contains dogs' and object's names.
-  * `Weight` stores the weight with respect to the name.
+
+
+#### 5. Tidy data 
+
+Transform columns of weight into 2 new columns named `Dog` and `Weight`. 
 ```{r}
 weight_2 <- weight %>% 
   pivot_longer(                          
@@ -168,7 +178,7 @@ weight_2
 
 ### II. Notes
 
-Extract the last column from raw data and bind with the tidied date column to form the `note` dataset
+Extract last column and bind with the date 
 ```{r}
 raw_data_note <- read_excel("./data/dogweights_07may2022.xlsx",range = "G2:G363") 
 raw_data_note
@@ -191,7 +201,7 @@ write_csv(note,file = "data/note.csv")
 
 #### 1.unique dates
 
-there are `r length(unique(weight$date))` unique dates.
+`r length(unique(weight$date))` unique dates.
 ```{r echo=FALSE}
 num_unique_date <- length(unique(weight$date))
 
@@ -200,9 +210,9 @@ num_unique_date <- length(unique(weight$date))
 
 #### 2. Table
 
-  * `avg_weight` measures the average weight in the observation duration. Simone is the lightest and Raisin is the heaviest.
+  * `avg_weight` measures the average weight. Simone is the lightest and Raisin is the heaviest.
   * `sd_weight` measures the deviation from the average weight. The deviations are all small ,showing low variability in weight. Variability of Raisin and Simone are slightly higher.
-  * all
+  * `num_obs` counts the non-NA observations.
 ```{r}
 weight_2 %>% 
   group_by(Dog) %>% 
@@ -220,8 +230,7 @@ weight_2 %>%
 
 ## Visualization
 
-### right plot -- Each Dog’s Weight (lbs) Over Time
-```{r}
+```{r,warning=FALSE}
 weight_lbs_over_time <- weight_2 %>% 
   filter(Dog != "Standard") %>% 
   ggplot(aes(x = date, y = Weight,color = Dog), group = Dog) +
@@ -237,9 +246,12 @@ weight_lbs_over_time
 ```
 
 
+  * Gagne's observations ended in 2019 because it died on 09/08/2019
+  * A sudden drop in Raisin's weight is on 08/14/2019. The value recorded is 7lbs 15oz, while the weight on 08/10/2019 is 17lbs 15oz. Thus, this outlier is probably caused by mistyping.
+  * The interrupted connections are due to no records. Most of the missing records are due to that dogs are at the kennels.
+  * The overall trends of Gagne and Simone are decreasing while Raisin has a more stabilized trend excluding the outlier.
 
 
-### left plot -- distribution of weights (lbs) for each dog
 
 ```{r}
 weight_distribution_lbs<- weight_2 %>% 
@@ -258,8 +270,9 @@ weight_distribution_lbs<- weight_2 %>%
 weight_distribution_lbs
 ```
 
+  * Gagne and Simone have similar distribution, ranging from 5 to 12 lbs. And most of the observations concentrate around 11 lbs.
+  * Raisin's weights mostly concentrate around 18 lbs. And the lower range of 7 lbs could be the outlier caused by mistyping.
 
-### combine the 2 plots
 
 ```{r}
 
