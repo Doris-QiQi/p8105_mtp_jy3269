@@ -44,7 +44,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
   * The next 3 columns show the weight of each dog, named Raisin, Simone and Gagne respectively.
 
-  * To ensure the measurement accuracy, a standard object is also weighed and recorded occasionally as a reference. 
+  * A standard object is also weighed and recorded occasionally as a reference. 
 
   * The units used to measure in the raw data set is a combination of lbs and oz. 
 
@@ -59,18 +59,18 @@ scale_fill_discrete = scale_fill_viridis_d
   
 
 
-### I. Weight data
+### I. Weight Data
 
 #### Issue 1: Incorrect column names  
 
-The raw data is imported from an excel spreadsheet. Because of the merged cells, the original column names are not correct in `raw_data`.
+The raw data is imported from an excel spreadsheet. Because of the merged cells, the column names are not correct in `raw_data`.
 
 ```{r}
 raw_data <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363") 
 head(raw_data)
 ```
 
-I solved this problem by extract the first row as column names and rename the 
+I solved this problem by extracting the first row as column names and rename the columns. Then, remove the previous first row to avoid duplication.
 ```{r}
 weight = raw_data             # save the raw data and work on the new data set named weight 
 
