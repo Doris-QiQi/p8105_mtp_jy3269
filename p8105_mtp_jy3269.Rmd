@@ -36,7 +36,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 **Brief Introduction to the Raw Data:**
 
-  * The data set is a record of 3 pet dogs' weight from `r weight$date[1]` to `r weight$date[-1]`. 
+  * The data set records 3 pet dogs' weight from `r weight$date[1]` to `r weight$date[-1]`. 
 
   * The raw data set has `r nrows(raw_data)` rows and 6 columns.
 
@@ -53,24 +53,23 @@ scale_fill_discrete = scale_fill_viridis_d
 
 **Goals of the Report:**
 
-  * Show and explain the major steps in turning the raw data set into a tidy data set available for analysis.
-  * Explore the features and patterns in the 3 dogs' weight data and try to interpret them.
-  * Visualize the distribution of dogs' weights and their variation over time and make conclusions from the plots.
-  
+  * Show the major steps in turning the raw data set into a tidy one available for analysis.
+  * Explore the features in the 3 dogs' weight and try to interpret them.
+  * Visualize the distribution of dogs' weights and identify their variation over time.
 
 
 ### I. Weight Data
 
 #### Issue 1: Incorrect column names  
 
-The raw data is imported from an excel spreadsheet. Because of the merged cells, the column names are not correct in `raw_data`.
+The raw data is imported from excel. Because of the merged cells, the column names are not correct in `raw_data`.
 
 ```{r}
 raw_data <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363") 
 head(raw_data)    # show part of the raw data
 ```
 
-I solved this problem by extracting the first row as column names to rename the columns. Then, remove the previous first row to avoid duplication.
+This problem is solved by extracting the first row as column names to rename the columns. Then, remove the previous first row to avoid duplication.
 ```{r}
 weight = raw_data             # save the raw data and work on the new data set named weight 
 
@@ -78,12 +77,11 @@ colnames(weight) = weight[1,] # change column names
 
 weight <- weight[-1,]         # omit the first row which is the column name
 
-head(weight)                  # show part of the transformed data
-
+head(weight)                  # data after column name correction
 ```
 
 
-#### Issue 2: Unify the unit for weight measurement
+#### Issue 2: Unify Units
 
 The original units for weight data contain both lbs and oz. First, the two units of data are separated. Then, according to the rule that 1 lb = 16 oz, oz is transformed into lb and added to the lbs column. Now we have the weight data measure in lbs for dogs and the reference.
 ```{r}
@@ -93,20 +91,28 @@ weight <- weight %>%
   separate(Gagne, c("Gagne (Lbs)","Gagne (Oz)"), sep = " ", convert = TRUE) %>% 
   separate(std, c("std (Lbs)","std (Oz)"), sep = " ", convert = TRUE) %>% 
   janitor::clean_names() %>% 
-  mutate(Raisin = raisin_lbs + raisin_oz/16,
+  mutate(Raisin = raisin_lbs + raisin_oz/16,   # 1 lb = 16 oz
          Simone = simone_lbs + simone_oz/16,
          Gagne = gagne_lbs + gagne_oz/16,
          Standard = std_lbs + std_oz/16
           ) %>% 
   select(date,Raisin,Simone,Gagne,Standard)
+```
 
-weight
+```{r}
+head(weight)     # data after units transformation
 ```
 
 
-#### Issue 3: Messy date format shown in R
+#### Issue 3: Messy date shown in R
 
-```{r}
+1. The dates imported from excel are shown as integers but in character format in R. 
+   First we transform it into numeric type. Then, add the number to the original date of `1899-12-30` to get the actual date.
+   
+2. A fault in date.
+   The fault is detected when examining the unique values of dates. There is an `s` in the date column. We suppose that this is a wrong entry due to mistyping. We locate it and use the middle day of the 2 dates next to it to correct it.
+
+```{r,echo=FALSE}
 unique(weight$date)                # find outliers in date
 
 which(weight$date == "s")          # locate the outlier
@@ -122,16 +128,22 @@ weight$date[is.na(weight$date)] <- round(((weight$date)[78] + (weight$date)[76])
 weight <- weight %>% 
   mutate(date = as.Date(weight$date, origin = "1899-12-30"))
 
+write_csv(weight,file = "data/weight.csv")
+
 # another data set to store the date in a separated way
 weight_1 <- weight %>%  
   separate(date, into = c("Year","Month","Day"),sep = "-") %>% 
   mutate(Month = month.abb[as.numeric(Month)])
 
-write_csv(weight,file = "data/weight.csv")
+```
+
+```{r}
+head(weight)    # data after date correction
 ```
 
 
-#### 4. Tidy data into longer form
+
+#### 4. Tidy data 
 
 ```{r}
 weight_2 <- weight %>% 
