@@ -67,10 +67,10 @@ The raw data is imported from an excel spreadsheet. Because of the merged cells,
 
 ```{r}
 raw_data <- read_excel("./data/dogweights_07may2022.xlsx",range = "B1:F363") 
-head(raw_data)
+head(raw_data)    # show part of the raw data
 ```
 
-I solved this problem by extracting the first row as column names and rename the columns. Then, remove the previous first row to avoid duplication.
+I solved this problem by extracting the first row as column names to rename the columns. Then, remove the previous first row to avoid duplication.
 ```{r}
 weight = raw_data             # save the raw data and work on the new data set named weight 
 
@@ -78,13 +78,14 @@ colnames(weight) = weight[1,] # change column names
 
 weight <- weight[-1,]         # omit the first row which is the column name
 
-head(weight)
+head(weight)                  # show part of the transformed data
 
 ```
 
 
 #### Issue 2: Unify the unit for weight measurement
 
+The original units for weight data contain both lbs and oz. First, the two units of data are separated. Then, according to the rule that 1 lb = 16 oz, oz is transformed into lb and added to the lbs column. Now we have the weight data measure in lbs for dogs and the reference.
 ```{r}
 weight <- weight %>% 
   separate(Raisin, c("Raisin (Lbs)","Raisin (Oz)"), sep = " ", convert = TRUE) %>% 
